@@ -7,15 +7,12 @@
 <style>
 :root{--ink:#182a2a;--muted:#667a78;--green:#047857;--dark:#063c2d;--border:#d8e5df}
 *{box-sizing:border-box}body{margin:0;background:#f3f8f5;color:var(--ink);font-family:Inter,system-ui,Arial,sans-serif}
-header{background:linear-gradient(120deg,#052e24,#047857);padding:26px max(20px,calc((100vw - 1500px)/2));color:#fff}
-header h1{font-size:clamp(23px,3vw,36px);letter-spacing:-.03em;margin:0 0 6px}
-header p{color:#d6f5e7;margin:0}main{max-width:1540px;padding:22px 18px 30px;margin:auto}
-nav{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
-.tabs{display:flex;gap:9px;flex-wrap:wrap}button{background:white;border:1px solid var(--border);color:#294642;border-radius:10px;padding:13px 16px;cursor:pointer;font:700 14px Inter,system-ui,Arial}
+main{max-width:1540px;padding:12px 14px 24px;margin:auto}
+nav{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:10px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}button{background:white;border:1px solid var(--border);color:#294642;border-radius:10px;padding:10px 15px;cursor:pointer;font:700 14px Inter,system-ui,Arial}
 button:hover{border-color:var(--green)}button[aria-selected=true]{background:var(--green);border-color:var(--green);color:#fff}
 a{color:var(--green);font-size:13px;font-weight:700;text-decoration:none}
 section{background:#fff;border:1px solid var(--border);border-radius:15px;overflow:hidden;box-shadow:0 10px 24px #033e1d0a}
-.head{display:none}
 #state{min-height:44px;display:flex;align-items:center;justify-content:center;gap:10px;text-align:center;color:var(--muted);padding:14px 18px;line-height:1.5;font-size:13px}
 #state[hidden]{display:none}
 #state.loading::before{content:"";width:14px;height:14px;flex:0 0 14px;border:2px solid #d7e7df;border-top-color:var(--green);border-radius:50%;animation:spin .75s linear infinite}
@@ -25,7 +22,6 @@ section{background:#fff;border:1px solid var(--border);border-radius:15px;overfl
 </style>
 </head>
 <body>
-<header><h1>Portal de relatórios educacionais</h1><p>Histórico de habilidades, comparativo por escola e dispersão de estudantes.</p></header>
 <main>
 <nav aria-label="Relatórios">
 <div class="tabs" role="tablist" aria-label="Relatórios disponíveis">
@@ -35,7 +31,7 @@ section{background:#fff;border:1px solid var(--border);border-radius:15px;overfl
 </div>
 
 </nav>
-<section aria-label="Visualização dos relatórios"><div class="head" id="current">Escolha um relatório</div><div id="state" role="status" aria-live="polite">Selecione uma aba acima para carregar o painel correspondente.</div><iframe id="viewer" title="Relatório selecionado" referrerpolicy="no-referrer"></iframe></section>
+<section aria-label="Visualização dos relatórios"><div id="state" role="status" aria-live="polite">Selecione uma aba acima para carregar o painel correspondente.</div><iframe id="viewer" title="Relatório selecionado" referrerpolicy="no-referrer"></iframe></section>
 </main>
 <script>
 (()=>{
@@ -51,7 +47,6 @@ const report=reports.find(r=>r.id===id);if(!report)return;
 const ticket=++seq;
 if(ctrl)ctrl.abort();ctrl=new AbortController();
 buttons.forEach(b=>b.setAttribute('aria-selected',String(b.dataset.id===id)));
-current.textContent=report.name;
 if(historyUpdate)history.replaceState(null,'','?painel='+encodeURIComponent(id));
 viewer.removeAttribute('src');viewer.style.display='none';
 if(active){URL.revokeObjectURL(active);active=null}
