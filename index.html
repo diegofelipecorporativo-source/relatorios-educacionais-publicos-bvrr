@@ -100,7 +100,7 @@ async function show(id,updateHistory=true){
         '.plot-legend{position:relative;clear:both;}',
         '.chart-grid{grid-template-columns:minmax(0,1fr) !important;}',
         '.chart-grid>.chart-card.full{grid-column:auto;}'
-       ].join('\\n');
+       ].join(' ');
        doc.head.appendChild(css);
      }
      if(window.ResizeObserver){
@@ -110,7 +110,7 @@ async function show(id,updateHistory=true){
      if(id==='dispersao'){
        // Após o layout ocupar uma coluna, solicita um único ajuste responsivo do Plotly.
        const childWindow=doc.defaultView;
-       if(childWindow) requestAnimationFrame(()=>childWindow.dispatchEvent(new Event('resize')));
+       if(childWindow) requestAnimationFrame(()=>childWindow.dispatchEvent(new childWindow.Event('resize')));
      }
     }
    }catch(e){console.warn('Não foi possível ajustar conteúdo interno:',e)}
