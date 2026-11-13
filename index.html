@@ -21,7 +21,6 @@ section{background:#fff;border:1px solid var(--border);border-radius:15px;overfl
 #state.loading::before{content:"";width:14px;height:14px;flex:0 0 14px;border:2px solid #d7e7df;border-top-color:var(--green);border-radius:50%;animation:spin .75s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 #viewer{display:none;width:100%;height:84vh;min-height:650px;border:0}
-footer{text-align:center;color:var(--muted);font-size:12px;margin:18px}
 @media(max-width:640px){.tabs{display:grid;width:100%;grid-template-columns:1fr}.tabs button{text-align:left}#viewer{min-height:540px}}
 </style>
 </head>
@@ -37,7 +36,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin:18px}
 
 </nav>
 <section aria-label="Visualização dos relatórios"><div class="head" id="current">Escolha um relatório</div><div id="state" role="status" aria-live="polite">Selecione uma aba acima para carregar o painel correspondente.</div><iframe id="viewer" title="Relatório selecionado" referrerpolicy="no-referrer"></iframe></section>
-</main><footer>Relatórios interativos · Visualização otimizada para navegadores modernos</footer>
+</main>
 <script>
 (()=>{
 const reports=[
@@ -64,7 +63,13 @@ try{
  const blob=await new Response(r.body.pipeThrough(new DecompressionStream('gzip')),{headers:{'Content-Type':'text/html;charset=utf-8'}}).blob();
  if(ticket!==seq)return;
  active=URL.createObjectURL(blob);
- viewer.onload=()=>{if(ticket===seq){state.hidden=true;state.classList.remove('loading');viewer.style.display='block'}};
+ viewer.onload=()=>{if(ticket!==seq)return;
+ try {
+   // Retira dos relatórios a descrição introdutória, sem afetar os gráficos ou filtros.
+   viewer.contentDocument?.querySelector('.hero > h1 + p')?.remove();
+ } catch(e) { console.warn('Não foi possível remover a descrição do relatório:',e); }
+ state.hidden=true;state.classList.remove('loading');viewer.style.display='block';
+};
  viewer.src=active;
 }catch(e){if(ticket===seq&&e.name!=='AbortError')message('Não foi possível abrir o painel: '+e.message+'. Verifique se os três arquivos .html.gz foram enviados para a raiz do repositório.')}
 }
