@@ -5,13 +5,13 @@ Página inicial de três painéis independentes: **Histórico de habilidades**, 
 ## Arquivos necessários na raiz da branch main
 
 - `index.html` — página inicial (já criada)
-- `01_historico_habilidades.html.gz`
-- `02_comparativo_habilidades_por_escola.html.gz`
-- `03_painel_dispersao_estudantes.html.gz`
+- `01_historico_habilidades.html`
+- `02_comparativo_habilidades_por_escola.html`
+- `03_painel_dispersao_estudantes.html`
 
 ## Publicação no GitHub Pages
 
-1. Envie os três arquivos `.html.gz` à raiz da branch `main` com **Add file → Upload files → Commit changes**.
+1. Envie os três arquivos `.html` à raiz da branch `main` com **Add file → Upload files → Commit changes**.
 2. Em **Settings → Pages**, configure **Deploy from a branch**, **main** e **/(root)**; clique em **Save**.
 3. Acesse: https://diegofelipecorporativo-source.github.io/relatorios-educacionais-publicos/
 
@@ -21,4 +21,4 @@ Página inicial de três painéis independentes: **Histórico de habilidades**, 
 - [Comparativo](https://diegofelipecorporativo-source.github.io/relatorios-educacionais-publicos/?painel=escolas)
 - [Dispersão](https://diegofelipecorporativo-source.github.io/relatorios-educacionais-publicos/?painel=dispersao)
 
-Os relatórios são armazenados em gzip e abertos diretamente no navegador com `DecompressionStream`, sem alterações nos filtros ou gráficos originais. O repositório é **público**; antes de divulgá-lo, confirme que os dados podem ser publicados.
+Os relatórios são arquivos HTML originais, sem compactação. O painel selecionado é aberto por um iframe. O repositório é **público**; antes de divulgá-lo, confirme que os dados podem ser publicados.
