@@ -106,8 +106,10 @@ async function show(id,updateHistory=true){
  }
 }
 buttons.forEach(b=>b.addEventListener('click',()=>show(b.dataset.id)));
+// Ao abrir o portal, exibe o primeiro relatório automaticamente.
+// Os links com ?painel=historico, ?painel=escolas e ?painel=dispersao continuam funcionando.
 const initial=new URLSearchParams(location.search).get('painel');
-if(reports.some(r=>r.id===initial))show(initial,false);
+show(reports.some(r=>r.id===initial)?initial:'historico',false);
 })();
 </script>
 </body></html>
