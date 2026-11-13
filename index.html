@@ -34,7 +34,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin:18px}
 <button role="tab" data-id="escolas" aria-selected="false">Comparativo por escola</button>
 <button role="tab" data-id="dispersao" aria-selected="false">Dispersão de estudantes</button>
 </div>
-<a id="newtab" href="#" target="_blank" rel="noopener noreferrer" hidden>Abrir em nova aba ↗</a>
+
 </nav>
 <section aria-label="Visualização dos relatórios"><div class="head" id="current">Escolha um relatório</div><div id="state" role="status" aria-live="polite">Selecione uma aba acima para carregar o painel correspondente.</div><iframe id="viewer" title="Relatório selecionado" referrerpolicy="no-referrer"></iframe></section>
 </main><footer>Relatórios interativos · Visualização otimizada para navegadores modernos</footer>
@@ -44,7 +44,7 @@ const reports=[
 {id:"historico",name:"Histórico de habilidades",gz:"01_historico_habilidades.html.gz"},
 {id:"escolas",name:"Comparativo por escola",gz:"02_comparativo_habilidades_por_escola.html.gz"},
 {id:"dispersao",name:"Dispersão de estudantes",gz:"03_painel_dispersao_estudantes.html.gz"}];
-const buttons=[...document.querySelectorAll('[role="tab"]')],viewer=document.getElementById('viewer'),state=document.getElementById('state'),current=document.getElementById('current'),newtab=document.getElementById('newtab');
+const buttons=[...document.querySelectorAll('[role="tab"]')],viewer=document.getElementById('viewer'),state=document.getElementById('state'),current=document.getElementById('current');
 let active=null,ctrl=null,seq=0;
 function message(s,loading=false){state.textContent=s;state.hidden=false;state.classList.toggle('loading',loading);viewer.style.display='none'}
 async function show(id,historyUpdate=true){
@@ -52,7 +52,7 @@ const report=reports.find(r=>r.id===id);if(!report)return;
 const ticket=++seq;
 if(ctrl)ctrl.abort();ctrl=new AbortController();
 buttons.forEach(b=>b.setAttribute('aria-selected',String(b.dataset.id===id)));
-current.textContent=report.name;newtab.hidden=false;newtab.href='?painel='+encodeURIComponent(id);
+current.textContent=report.name;
 if(historyUpdate)history.replaceState(null,'','?painel='+encodeURIComponent(id));
 viewer.removeAttribute('src');viewer.style.display='none';
 if(active){URL.revokeObjectURL(active);active=null}
