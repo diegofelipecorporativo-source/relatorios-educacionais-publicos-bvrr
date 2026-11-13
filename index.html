@@ -15,8 +15,11 @@ nav{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between
 button:hover{border-color:var(--green)}button[aria-selected=true]{background:var(--green);border-color:var(--green);color:#fff}
 a{color:var(--green);font-size:13px;font-weight:700;text-decoration:none}
 section{background:#fff;border:1px solid var(--border);border-radius:15px;overflow:hidden;box-shadow:0 10px 24px #033e1d0a}
-.head{padding:15px 18px;border-bottom:1px solid var(--border);font-weight:700}
-#state{min-height:52vh;display:grid;place-items:center;text-align:center;color:var(--muted);padding:26px;line-height:1.6}
+.head{display:none}
+#state{min-height:44px;display:flex;align-items:center;justify-content:center;gap:10px;text-align:center;color:var(--muted);padding:14px 18px;line-height:1.5;font-size:13px}
+#state[hidden]{display:none}
+#state.loading::before{content:"";width:14px;height:14px;flex:0 0 14px;border:2px solid #d7e7df;border-top-color:var(--green);border-radius:50%;animation:spin .75s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 #viewer{display:none;width:100%;height:84vh;min-height:650px;border:0}
 footer{text-align:center;color:var(--muted);font-size:12px;margin:18px}
 @media(max-width:640px){.tabs{display:grid;width:100%;grid-template-columns:1fr}.tabs button{text-align:left}#viewer{min-height:540px}}
@@ -43,7 +46,7 @@ const reports=[
 {id:"dispersao",name:"Dispersão de estudantes",gz:"03_painel_dispersao_estudantes.html.gz"}];
 const buttons=[...document.querySelectorAll('[role="tab"]')],viewer=document.getElementById('viewer'),state=document.getElementById('state'),current=document.getElementById('current'),newtab=document.getElementById('newtab');
 let active=null,ctrl=null,seq=0;
-function message(s){state.textContent=s;state.hidden=false;viewer.style.display='none'}
+function message(s,loading=false){state.textContent=s;state.hidden=false;state.classList.toggle('loading',loading);viewer.style.display='none'}
 async function show(id,historyUpdate=true){
 const report=reports.find(r=>r.id===id);if(!report)return;
 const ticket=++seq;
@@ -54,14 +57,14 @@ if(historyUpdate)history.replaceState(null,'','?painel='+encodeURIComponent(id))
 viewer.removeAttribute('src');viewer.style.display='none';
 if(active){URL.revokeObjectURL(active);active=null}
 if(!window.DecompressionStream){message('Atualize seu navegador para visualizar relatórios compactados.');return}
-message('Carregando '+report.name+'…');
+message('Carregando '+report.name+'…',true);
 try{
  const r=await fetch(report.gz,{signal:ctrl.signal});
  if(!r.ok||!r.body)throw new Error('Arquivo '+report.gz+' não encontrado (HTTP '+r.status+').');
  const blob=await new Response(r.body.pipeThrough(new DecompressionStream('gzip')),{headers:{'Content-Type':'text/html;charset=utf-8'}}).blob();
  if(ticket!==seq)return;
  active=URL.createObjectURL(blob);
- viewer.onload=()=>{if(ticket===seq){state.hidden=true;viewer.style.display='block'}};
+ viewer.onload=()=>{if(ticket===seq){state.hidden=true;state.classList.remove('loading');viewer.style.display='block'}};
  viewer.src=active;
 }catch(e){if(ticket===seq&&e.name!=='AbortError')message('Não foi possível abrir o painel: '+e.message+'. Verifique se os três arquivos .html.gz foram enviados para a raiz do repositório.')}
 }
