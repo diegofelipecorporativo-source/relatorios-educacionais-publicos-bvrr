@@ -51,8 +51,10 @@ function fitFrame(){
   const doc=viewer.contentDocument;
   if(!doc || !doc.body || !doc.documentElement)return;
   // Altura real do documento, inclusive gráficos Plotly renderizados após o carregamento.
-  const h=Math.max(doc.body.scrollHeight,doc.body.offsetHeight,
-   doc.documentElement.scrollHeight,doc.documentElement.offsetHeight);
+  // Mede o conteúdo real, sem usar a altura atual do próprio iframe.
+  const content=doc.querySelector('main.page') || doc.body;
+  const rect=content.getBoundingClientRect();
+  const h=Math.ceil(rect.bottom + (doc.defaultView?.scrollY || 0) + 8);
   if(h>0){
    const desired=Math.ceil(h),current=parseInt(viewer.style.height,10)||0;
    if(Math.abs(desired-current)>8)viewer.style.height=desired+'px';
@@ -87,10 +89,29 @@ async function show(id,updateHistory=true){
     const doc=viewer.contentDocument;
     // Preserva a opção anterior de omitir os textos descritivos dos relatórios.
     doc?.querySelector('.hero > h1 + p')?.remove();
-    if(doc && window.ResizeObserver){
-     observer=new ResizeObserver(scheduleFit);
-     if(doc.body)observer.observe(doc.body);
-     if(doc.documentElement)observer.observe(doc.documentElement);
+    if(doc){
+     // Aplica regras exclusivamente à apresentação, sem alterar dados ou traces Plotly.
+     if(!doc.getElementById('portal-graph-layout')){
+       const css=doc.createElement('style');
+       css.id='portal-graph-layout';
+       css.textContent=[
+        '.chart-card{min-width:0;max-width:100%;position:relative;}',
+        '.plot-shell,.plot{min-width:0;max-width:100%;}',
+        '.plot-legend{position:relative;clear:both;}',
+        '.chart-grid{grid-template-columns:minmax(0,1fr) !important;}',
+        '.chart-grid>.chart-card.full{grid-column:auto;}'
+       ].join('\\n');
+       doc.head.appendChild(css);
+     }
+     if(window.ResizeObserver){
+       observer=new ResizeObserver(scheduleFit);
+       observer.observe(doc.querySelector('main.page') || doc.body);
+     }
+     if(id==='dispersao'){
+       // Após o layout ocupar uma coluna, solicita um único ajuste responsivo do Plotly.
+       const childWindow=doc.defaultView;
+       if(childWindow) requestAnimationFrame(()=>childWindow.dispatchEvent(new Event('resize')));
+     }
     }
    }catch(e){console.warn('Não foi possível ajustar conteúdo interno:',e)}
    viewer.classList.remove('preloading');
