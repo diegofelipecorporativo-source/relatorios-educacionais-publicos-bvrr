@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Portal de relatórios educacionais</title>
+<meta name="description" content="Histórico de habilidades, comparativo por escola e dispersão de estudantes.">
+<style>
+:root{--ink:#182a2a;--muted:#667a78;--green:#047857;--dark:#063c2d;--border:#d8e5df}
+*{box-sizing:border-box}body{margin:0;background:#f3f8f5;color:var(--ink);font-family:Inter,system-ui,Arial,sans-serif}
+header{background:linear-gradient(120deg,#052e24,#047857);padding:26px max(20px,calc((100vw - 1500px)/2));color:#fff}
+header h1{font-size:clamp(23px,3vw,36px);letter-spacing:-.03em;margin:0 0 6px}
+header p{color:#d6f5e7;margin:0}main{max-width:1540px;padding:22px 18px 30px;margin:auto}
+nav{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+.tabs{display:flex;gap:9px;flex-wrap:wrap}button{background:white;border:1px solid var(--border);color:#294642;border-radius:10px;padding:13px 16px;cursor:pointer;font:700 14px Inter,system-ui,Arial}
+button:hover{border-color:var(--green)}button[aria-selected=true]{background:var(--green);border-color:var(--green);color:#fff}
+a{color:var(--green);font-size:13px;font-weight:700;text-decoration:none}
+section{background:#fff;border:1px solid var(--border);border-radius:15px;overflow:hidden;box-shadow:0 10px 24px #033e1d0a}
+.head{padding:15px 18px;border-bottom:1px solid var(--border);font-weight:700}
+#state{min-height:52vh;display:grid;place-items:center;text-align:center;color:var(--muted);padding:26px;line-height:1.6}
+#viewer{display:none;width:100%;height:84vh;min-height:650px;border:0}
+footer{text-align:center;color:var(--muted);font-size:12px;margin:18px}
+@media(max-width:640px){.tabs{display:grid;width:100%;grid-template-columns:1fr}.tabs button{text-align:left}#viewer{min-height:540px}}
+</style>
+</head>
+<body>
+<header><h1>Portal de relatórios educacionais</h1><p>Histórico de habilidades, comparativo por escola e dispersão de estudantes.</p></header>
+<main>
+<nav aria-label="Relatórios">
+<div class="tabs" role="tablist" aria-label="Relatórios disponíveis">
+<button role="tab" data-id="historico" aria-selected="false">Histórico de habilidades</button>
+<button role="tab" data-id="escolas" aria-selected="false">Comparativo por escola</button>
+<button role="tab" data-id="dispersao" aria-selected="false">Dispersão de estudantes</button>
+</div>
+<a id="newtab" href="#" target="_blank" rel="noopener noreferrer" hidden>Abrir em nova aba ↗</a>
+</nav>
+<section aria-label="Visualização dos relatórios"><div class="head" id="current">Escolha um relatório</div><div id="state" role="status" aria-live="polite">Selecione uma aba acima para carregar o painel correspondente.</div><iframe id="viewer" title="Relatório selecionado" referrerpolicy="no-referrer"></iframe></section>
+</main><footer>Relatórios interativos · Visualização otimizada para navegadores modernos</footer>
+<script>
+(()=>{
+const reports=[
+{id:"historico",name:"Histórico de habilidades",gz:"01_historico_habilidades.html.gz"},
+{id:"escolas",name:"Comparativo por escola",gz:"02_comparativo_habilidades_por_escola.html.gz"},
+{id:"dispersao",name:"Dispersão de estudantes",gz:"03_painel_dispersao_estudantes.html.gz"}];
+const buttons=[...document.querySelectorAll('[role="tab"]')],viewer=document.getElementById('viewer'),state=document.getElementById('state'),current=document.getElementById('current'),newtab=document.getElementById('newtab');
+let active=null,ctrl=null,seq=0;
+function message(s){state.textContent=s;state.hidden=false;viewer.style.display='none'}
+async function show(id,historyUpdate=true){
+const report=reports.find(r=>r.id===id);if(!report)return;
+const ticket=++seq;
+if(ctrl)ctrl.abort();ctrl=new AbortController();
+buttons.forEach(b=>b.setAttribute('aria-selected',String(b.dataset.id===id)));
+current.textContent=report.name;newtab.hidden=false;newtab.href='?painel='+encodeURIComponent(id);
+if(historyUpdate)history.replaceState(null,'','?painel='+encodeURIComponent(id));
+viewer.removeAttribute('src');viewer.style.display='none';
+if(active){URL.revokeObjectURL(active);active=null}
+if(!window.DecompressionStream){message('Atualize seu navegador para visualizar relatórios compactados.');return}
+message('Carregando '+report.name+'…');
+try{
+ const r=await fetch(report.gz,{signal:ctrl.signal});
+ if(!r.ok||!r.body)throw new Error('Arquivo '+report.gz+' não encontrado (HTTP '+r.status+').');
+ const blob=await new Response(r.body.pipeThrough(new DecompressionStream('gzip')),{headers:{'Content-Type':'text/html;charset=utf-8'}}).blob();
+ if(ticket!==seq)return;
+ active=URL.createObjectURL(blob);
+ viewer.onload=()=>{if(ticket===seq){state.hidden=true;viewer.style.display='block'}};
+ viewer.src=active;
+}catch(e){if(ticket===seq&&e.name!=='AbortError')message('Não foi possível abrir o painel: '+e.message+'. Verifique se os três arquivos .html.gz foram enviados para a raiz do repositório.')}
+}
+buttons.forEach(b=>b.addEventListener('click',()=>show(b.dataset.id)));
+const initial=new URLSearchParams(location.search).get('painel');
+if(reports.some(r=>r.id===initial))show(initial,false);
+})();
+</script>
+</body></html>
