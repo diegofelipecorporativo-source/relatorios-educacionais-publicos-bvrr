@@ -119,7 +119,7 @@ async function show(id,updateHistory=true){
           if(plotly.Plots?.resize)await plotly.Plots.resize(graph);
           // O usuário relatou que Autoscale restaura as legendas: executa
           // o mesmo controle uma única vez para cada gráfico recém-criado.
-          const autoscale=graph.querySelector('[data-attr="autoScale2d"]');
+          const autoscale=graph.querySelector('.modebar-btn[data-attr="zoom"][data-val="auto"]');
           if(autoscale&&!graph.dataset.portalAutoscaleInicial){
             graph.dataset.portalAutoscaleInicial='1';
             autoscale.click();
