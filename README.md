@@ -21,4 +21,4 @@ Página inicial de três painéis independentes: **Histórico de habilidades**, 
 - [Comparativo](https://diegofelipecorporativo-source.github.io/relatorios-educacionais-publicos/?painel=escolas)
 - [Dispersão](https://diegofelipecorporativo-source.github.io/relatorios-educacionais-publicos/?painel=dispersao)
 
-Os relatórios são arquivos HTML originais, sem compactação. O painel selecionado é aberto por um iframe. O repositório é **público**; antes de divulgá-lo, confirme que os dados podem ser publicados.
+Os relatórios são arquivos HTML originais, sem compactação. 
